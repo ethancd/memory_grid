@@ -2,7 +2,7 @@ window.Game = do ->
 
   start = (height) ->
     width = nextFib(height)
-    game = new Game width, height
+    game = new Game parseInt(width), parseInt(height)
 
   nextFib = (number) ->
     n = 1
@@ -15,24 +15,20 @@ window.Game = do ->
 
   class Game
     constructor: (@width, @height) ->
-      @cellCount = parseInt @height
+      @cellCount = (@height - 2) or 1
       @delay = 400 * @cellCount
       do @populateGrid
       do @go
 
     populateGrid: ->
+      window.less.modifyVars({
+        "@grid-width": "#{@width * 40}px",
+        "@grid-height": "#{@height * 40}px"
+        })
       $("#grid").html("")
       for i in [0...@width]
         for j in [0...@height]
            $("#grid").append "<div class='cell' id='r#{i}c#{j}'</div>"
-
-    # go: ->
-    #   do @display #turns off mousepower, highlights @n squares, waits x seconds,
-      #turns off highlighting, turns on mousepower
-      #if click not highlighted block, go BAD, display all blocks, do display with same n
-      #if click all right blocks, go GOOD, increase @bC; if @bC > @width, h = w, w = nextfib(h)
-        #do display
-      #, timeStep
 
     go: ->
       @correctCount = 0
@@ -87,6 +83,7 @@ window.Game = do ->
         $("#max").html(@cellCount)
         $("#score").html(@cellCount + parseInt $("#score").html())
         if @cellCount >= @width
+          @cellCount = @height
           [@height, @width] = [@width, nextFib @width]
           do @populateGrid
         else

@@ -7,7 +7,7 @@
     start = function(height) {
       var game, width;
       width = nextFib(height);
-      return game = new Game(width, height);
+      return game = new Game(parseInt(width), parseInt(height));
     };
     nextFib = function(number) {
       var fibs, n;
@@ -23,7 +23,7 @@
       function Game(width, height) {
         this.width = width;
         this.height = height;
-        this.cellCount = parseInt(this.height);
+        this.cellCount = (this.height - 2) || 1;
         this.delay = 400 * this.cellCount;
         this.populateGrid();
         this.go();
@@ -31,6 +31,10 @@
 
       Game.prototype.populateGrid = function() {
         var i, j, _i, _ref, _results;
+        window.less.modifyVars({
+          "@grid-width": "" + (this.width * 40) + "px",
+          "@grid-height": "" + (this.height * 40) + "px"
+        });
         $("#grid").html("");
         _results = [];
         for (i = _i = 0, _ref = this.width; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -120,6 +124,7 @@
           $("#max").html(this.cellCount);
           $("#score").html(this.cellCount + parseInt($("#score").html()));
           if (this.cellCount >= this.width) {
+            this.cellCount = this.height;
             _ref = [this.width, nextFib(this.width)], this.height = _ref[0], this.width = _ref[1];
             this.populateGrid();
           } else {
