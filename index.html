@@ -8,8 +8,8 @@
 <body>
   <h1>Memory Grid!</h1>
   <header>
-    <strong>Max: <span id="max"></span></strong>
-    <strong>Score: <span id="score"></span></strong>
+    <strong>Max: <span id="max">0</span></strong>
+    <strong>Score: <span id="score">0</span></strong>
     <form action="">
       <h3>Initial grid size:</h3>
       <!-- use golden ratio for arbitrary aesthetic reasons -->
@@ -17,19 +17,19 @@
 
       <label>
         <input type="radio" name="size" value="13">
+        Huge
+      </label>
+      <label>
+        <input type="radio" name="size" value="8">
         Large
       </label>
       <label>
-        <input type="radio" name="size" value="8" checked>
+        <input type="radio" name="size" value="5" checked>
         Medium
       </label>
       <label>
-        <input type="radio" name="size" value="5">
-        Small
-      </label>
-      <label>
         <input type="radio" name="size" value="3">
-        Tiny
+        Small
       </label>
     </form>
 
@@ -45,8 +45,10 @@
   <script>
     $(function(){
       $("form").on("submit", function(event){
+        event.preventDefault();
         var size = $('input[name=size]:checked').val();
         Game.start(size);
+        $("form").hide();
       })
     })
   </script>

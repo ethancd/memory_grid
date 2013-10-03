@@ -1,4 +1,4 @@
-@import "lib/normalize.css"
+@import "libs/normalize.css";
 
 @back: #eee;
 @fore: #333;
@@ -6,18 +6,20 @@
 @grid: #00f;
 @highlighted-cell: #eee;
 
-@grid-width: 325px;
+@grid-width: 320px;
 @grid-height: 200px;
 
 
-div.grid {
+div#grid {
   width: @grid-width;
   height: @grid-height;
   margin: auto;
+  border: 2px solid @grid;
 
   div.cell {
-    width: 21px;
-    height: 21px;
+    float: left;
+    width: 36px;
+    height: 36px;
     background-color: @cell;
     border: 2px solid @grid;
 

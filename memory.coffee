@@ -3,7 +3,6 @@ window.Game = do ->
   start = (height) ->
     width = nextFib(height)
     game = new Game width, height
-    do game.go
 
   nextFib = (number) ->
     n = 1
@@ -14,23 +13,12 @@ window.Game = do ->
 
     fibs[n]
 
-  disableMouse = -> $(".cell").off "click"
-  enableMouse = -> 
-    $(".cell").on "click", (event) -> 
-      $(this).addClass("chosen")
-
-      if $(this).attr("id") in @cells
-        @correctCount += 1
-        if @correctCount is @cellCount
-          @respond true
-      else
-        @respond false
-
   class Game
     constructor: (@width, @height) ->
-      @cellCount = @width
+      @cellCount = parseInt @height
       @delay = 400 * @cellCount
       do @populateGrid
+      do @go
 
     populateGrid: ->
       $("#grid").html("")
@@ -48,17 +36,32 @@ window.Game = do ->
 
     go: ->
       @correctCount = 0
-      do disableMouse
+      do @disableMouse
       do @pickCells
       @lightCells true
 
+      that = @
       setTimeout ( -> 
-        @lightCells false
-        do enableMouse
-        setTimeout ( ->
-          do @respond false
-          ), 1000 * @height
+        that.lightCells false
+        do that.enableMouse
+        # setTimeout ( ->
+        #   that.respond false
+        #   ), (1000 * that.height)
         ), @delay
+
+    disableMouse: -> $(".cell").off "click"
+    enableMouse: -> 
+      that = @
+      $(".cell").on "click", (event) -> 
+        $(this).addClass("chosen")
+
+        if $(this).attr("id") in that.cells
+          that.correctCount += 1
+          console.log that.correctCount is that.cellCount
+          if that.correctCount is that.cellCount
+            that.respond true
+        else
+          that.respond false
 
     pickCells: ->
       @cells = []
@@ -78,27 +81,19 @@ window.Game = do ->
       $("##{cell}").toggleClass("chosen", bool) for cell in @cells
 
     respond: (succeeded) ->
+      $(".cell").removeClass("chosen")
       if succeeded 
         #@flash "good"
         $("#max").html(@cellCount)
         $("#score").html(@cellCount + parseInt $("#score").html())
-        @cellCount += 1
-        if @cellCount > @width
+        if @cellCount >= @width
           [@height, @width] = [@width, nextFib @width]
           do @populateGrid
+        else
+          @cellCount += 1
       #else
         #@flash "bad"
       
       do @go
 
-
-
-
-
-
-
-
-
-
-
-  
+  {start: start}

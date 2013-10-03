@@ -3,12 +3,11 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   window.Game = (function() {
-    var Game, disableMouse, enableMouse, nextFib, start;
+    var Game, nextFib, start;
     start = function(height) {
       var game, width;
       width = nextFib(height);
-      game = new Game(width, height);
-      return game.go();
+      return game = new Game(width, height);
     };
     nextFib = function(number) {
       var fibs, n;
@@ -20,30 +19,14 @@
       }
       return fibs[n];
     };
-    disableMouse = function() {
-      return $(".cell").off("click");
-    };
-    enableMouse = function() {
-      return $(".cell").on("click", function(event) {
-        var _ref;
-        $(this).addClass("chosen");
-        if (_ref = $(this).attr("id"), __indexOf.call(this.cells, _ref) >= 0) {
-          this.correctCount += 1;
-          if (this.correctCount === this.cellCount) {
-            return this.respond(true);
-          }
-        } else {
-          return this.respond(false);
-        }
-      });
-    };
-    return Game = (function() {
+    Game = (function() {
       function Game(width, height) {
         this.width = width;
         this.height = height;
-        this.cellCount = this.width;
+        this.cellCount = parseInt(this.height);
         this.delay = 400 * this.cellCount;
         this.populateGrid();
+        this.go();
       }
 
       Game.prototype.populateGrid = function() {
@@ -64,17 +47,38 @@
       };
 
       Game.prototype.go = function() {
+        var that;
         this.correctCount = 0;
-        disableMouse();
+        this.disableMouse();
         this.pickCells();
         this.lightCells(true);
+        that = this;
         return setTimeout((function() {
-          this.lightCells(false);
-          enableMouse();
-          return setTimeout((function() {
-            return this.respond(false)();
-          }), 1000 * this.height);
+          that.lightCells(false);
+          return that.enableMouse();
         }), this.delay);
+      };
+
+      Game.prototype.disableMouse = function() {
+        return $(".cell").off("click");
+      };
+
+      Game.prototype.enableMouse = function() {
+        var that;
+        that = this;
+        return $(".cell").on("click", function(event) {
+          var _ref;
+          $(this).addClass("chosen");
+          if (_ref = $(this).attr("id"), __indexOf.call(that.cells, _ref) >= 0) {
+            that.correctCount += 1;
+            console.log(that.correctCount === that.cellCount);
+            if (that.correctCount === that.cellCount) {
+              return that.respond(true);
+            }
+          } else {
+            return that.respond(false);
+          }
+        });
       };
 
       Game.prototype.pickCells = function() {
@@ -111,13 +115,15 @@
 
       Game.prototype.respond = function(succeeded) {
         var _ref;
+        $(".cell").removeClass("chosen");
         if (succeeded) {
           $("#max").html(this.cellCount);
           $("#score").html(this.cellCount + parseInt($("#score").html()));
-          this.cellCount += 1;
-          if (this.cellCount > this.width) {
+          if (this.cellCount >= this.width) {
             _ref = [this.width, nextFib(this.width)], this.height = _ref[0], this.width = _ref[1];
             this.populateGrid();
+          } else {
+            this.cellCount += 1;
           }
         }
         return this.go();
@@ -126,6 +132,9 @@
       return Game;
 
     })();
+    return {
+      start: start
+    };
   })();
 
 }).call(this);
