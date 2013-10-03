@@ -1,10 +1,10 @@
-# Rememberall
+# Memory Grid
 
 A kickass memory game brought to you by Ethan Dickinson and the good folks at Solum.
 
 ### Project Description:
 
-Let's have some fun and implement a game called Memory Grid.  The game starts by presenting a grid (N by M grid) with a subset of the elements highlighted to the end user.
+The game starts by presenting a grid (N by M grid) with a subset of the elements highlighted to the end user.
 
 After a brief time, the grid will be flipped over, with all the elements reset and no longer highlighted.
 

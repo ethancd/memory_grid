@@ -1,0 +1,28 @@
+@import "lib/normalize.css"
+
+@back: #eee;
+@fore: #333;
+@cell: #999;
+@grid: #00f;
+@highlighted-cell: #eee;
+
+@grid-width: 325px;
+@grid-height: 200px;
+
+
+div.grid {
+  width: @grid-width;
+  height: @grid-height;
+  margin: auto;
+
+  div.cell {
+    width: 21px;
+    height: 21px;
+    background-color: @cell;
+    border: 2px solid @grid;
+
+    &.chosen {
+      background-color: @highlighted-cell;
+    }
+  }
+}
