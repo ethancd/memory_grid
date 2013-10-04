@@ -26,10 +26,10 @@ window.Program = do ->
     go: ->
       @correctCount = 0
       @passive = 1000 + 100 * @cellCount
-      @active = 500 * @width + 500 * @cellCount + 45
-      @remaining = @active / 1000
+      @active = 500 * @width + 500 * @cellCount
+      @remaining = @active / 100
 
-      $("time#remaining").html(@remaining.toFixed(1) + " s")   
+      $("time#remaining").html((@remaining/10).toFixed(1) + " s")   
       $("#timer").css("color", "#000")
       $(".cell").removeClass("chosen")
 
@@ -43,14 +43,15 @@ window.Program = do ->
         do @enableMouse
 
         @timer = setInterval ( =>
-          @remaining -= 0.1
-          $("time#remaining").html(@remaining.toFixed(1) + " s")
-          $("#timer").css("color", "#c00") if @remaining < 1.0  
+          @remaining -= 1
+          console.log @remaining
+          $("time#remaining").html((@remaining/10).toFixed(1) + " s")
+          $("#timer").css("color", "#c00") if @remaining < 1  
           ), 100
 
         setTimeout ( =>
           @respond false, current
-          ), @active
+          ), (@active + 90)
         ), @passive
 
     disableMouse: -> $(".cell").off "click"

@@ -47,9 +47,9 @@
           _this = this;
         this.correctCount = 0;
         this.passive = 1000 + 100 * this.cellCount;
-        this.active = 500 * this.width + 500 * this.cellCount + 45;
-        this.remaining = this.active / 1000;
-        $("time#remaining").html(this.remaining.toFixed(1) + " s");
+        this.active = 500 * this.width + 500 * this.cellCount;
+        this.remaining = this.active / 100;
+        $("time#remaining").html((this.remaining / 10).toFixed(1) + " s");
         $("#timer").css("color", "#000");
         $(".cell").removeClass("chosen");
         this.disableMouse();
@@ -60,15 +60,16 @@
           _this.lightCells(false);
           _this.enableMouse();
           _this.timer = setInterval((function() {
-            _this.remaining -= 0.1;
-            $("time#remaining").html(_this.remaining.toFixed(1) + " s");
-            if (_this.remaining < 1.0) {
+            _this.remaining -= 1;
+            console.log(_this.remaining);
+            $("time#remaining").html((_this.remaining / 10).toFixed(1) + " s");
+            if (_this.remaining < 1) {
               return $("#timer").css("color", "#c00");
             }
           }), 100);
           return setTimeout((function() {
             return _this.respond(false, current);
-          }), _this.active);
+          }), _this.active + 90);
         }), this.passive);
       };
 
