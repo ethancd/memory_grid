@@ -2,22 +2,11 @@
 (function() {
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  window.Game = (function() {
-    var Game, nextFib, start;
-    start = function(height) {
-      var game, width;
-      width = nextFib(height);
-      return game = new Game(parseInt(width), parseInt(height));
-    };
-    nextFib = function(number) {
-      var fibs, n;
-      n = 1;
-      fibs = [1, 1];
-      while (number >= fibs[n]) {
-        fibs.push(fibs[n] + fibs[n - 1]);
-        n += 1;
-      }
-      return fibs[n];
+  window.Program = (function() {
+    var Game, start;
+    start = function() {
+      var game;
+      return game = new Game(5, 3);
     };
     Game = (function() {
       function Game(width, height) {
@@ -31,9 +20,12 @@
 
       Game.prototype.populateGrid = function() {
         var i, j, _i, _ref, _results;
-        window.less.modifyVars({
-          "@grid-width": "" + (this.width * 40) + "px",
-          "@grid-height": "" + (this.height * 40) + "px"
+        $("#grid").css({
+          "width": "" + (this.width * 50) + "px",
+          "height": "" + (this.height * 50) + "px"
+        });
+        $("header").css({
+          "width": "" + (this.width * 50 + 300) + "px"
         });
         $("#grid").html("");
         _results = [];
@@ -42,7 +34,7 @@
             var _j, _ref1, _results1;
             _results1 = [];
             for (j = _j = 0, _ref1 = this.height; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
-              _results1.push($("#grid").append("<div class='cell' id='r" + i + "c" + j + "'</div>"));
+              _results1.push($("#grid").append("<div class='cell' id='r" + i + "c" + j + "'></div>"));
             }
             return _results1;
           }).call(this));
@@ -51,22 +43,32 @@
       };
 
       Game.prototype.go = function() {
-        var current, that;
+        var current,
+          _this = this;
         this.correctCount = 0;
         this.passive = 1000 + 100 * this.cellCount;
-        this.active = 3000 + 1000 * this.cellCount;
+        this.active = 500 * this.width + 500 * this.cellCount + 45;
+        this.remaining = this.active / 1000;
+        $("time#remaining").html(this.remaining.toFixed(1) + " s");
+        $("#timer").css("color", "#000");
         $(".cell").removeClass("chosen");
         this.disableMouse();
         this.pickCells();
         this.lightCells(true);
-        that = this;
         current = this.trial;
         return setTimeout((function() {
-          that.lightCells(false);
-          that.enableMouse();
+          _this.lightCells(false);
+          _this.enableMouse();
+          _this.timer = setInterval((function() {
+            _this.remaining -= 0.1;
+            $("time#remaining").html(_this.remaining.toFixed(1) + " s");
+            if (_this.remaining < 1.0) {
+              return $("#timer").css("color", "#c00");
+            }
+          }), 100);
           return setTimeout((function() {
-            return that.respond(false, current);
-          }), that.active);
+            return _this.respond(false, current);
+          }), _this.active);
         }), this.passive);
       };
 
@@ -75,18 +77,20 @@
       };
 
       Game.prototype.enableMouse = function() {
-        var that;
-        that = this;
+        var t;
+        t = this;
         return $(".cell").on("click", function(event) {
           var _ref;
-          if (_ref = $(this).attr("id"), __indexOf.call(that.cells, _ref) >= 0) {
-            $(this).addClass("chosen");
-            that.correctCount += 1;
-            if (that.correctCount === that.cellCount) {
-              return that.respond(true);
+          if (!$(this).hasClass("chosen")) {
+            if (_ref = $(this).attr("id"), __indexOf.call(t.cells, _ref) >= 0) {
+              $(this).addClass("chosen");
+              t.correctCount += 1;
+              if (t.correctCount === t.cellCount) {
+                return t.respond(true);
+              }
+            } else {
+              return t.respond(false);
             }
-          } else {
-            return that.respond(false);
           }
         });
       };
@@ -124,27 +128,35 @@
       };
 
       Game.prototype.respond = function(succeeded, trial) {
-        var that, _ref;
+        var bonus,
+          _this = this;
         if (arguments.length === 1 || trial === this.trial) {
           this.flash(succeeded);
+          clearInterval(this.timer);
           if (succeeded) {
-            $("#max").html(this.cellCount);
-            $("#score").html(this.cellCount + parseInt($("#score").html()));
-            if (this.cellCount >= this.width) {
-              this.cellCount = this.height;
-              _ref = [this.width, nextFib(this.width)], this.height = _ref[0], this.width = _ref[1];
-              this.populateGrid();
+            if (this.cellCount > parseInt($("#max").html())) {
+              $("#max").html(this.cellCount);
+            }
+            bonus = 10 * this.height * (this.cellCount + (Math.ceil(this.remaining * 10) / 10));
+            $("#score").html(bonus + parseInt($("#score").html()));
+            if (this.cellCount > (this.width * this.height / 4)) {
+              this.cellCount = this.width;
+              this.height += 1;
+              this.width = Math.floor(this.height * 1.6);
+              $("#success strong").html("Level Up!");
+              setTimeout((function() {
+                return _this.populateGrid();
+              }), 1000);
             } else {
               this.cellCount += 1;
             }
           } else {
             this.lightCells(true);
           }
-          that = this;
           this.trial += 1;
           return setTimeout((function() {
-            return that.go();
-          }), 400);
+            return _this.go();
+          }), 1000);
         }
       };
 
@@ -152,13 +164,15 @@
         var message;
         if (succeeded) {
           message = "Nice!";
+          $("#timer").css("color", "#090");
         } else {
           message = "Try Again!";
+          $("#timer").css("color", "#c00");
         }
-        $("h2").html("" + message);
+        $("#success strong").addClass("" + succeeded).html("" + message);
         return setTimeout((function() {
-          return $("h2").html("");
-        }), 400);
+          return $("#success strong").removeClass("" + succeeded).html("");
+        }), 1000);
       };
 
       return Game;

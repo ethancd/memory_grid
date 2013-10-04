@@ -1,17 +1,6 @@
-window.Game = do ->
+window.Program = do ->
 
-  start = (height) ->
-    width = nextFib(height)
-    game = new Game parseInt(width), parseInt(height)
-
-  nextFib = (number) ->
-    n = 1
-    fibs = [1,1]
-    while number >= fibs[n]
-      fibs.push(fibs[n] + fibs[n-1])
-      n += 1
-
-    fibs[n]
+  start = -> game = new Game 5, 3
 
   class Game
     constructor: (@width, @height) ->
@@ -21,46 +10,61 @@ window.Game = do ->
       do @go
 
     populateGrid: ->
-      window.less.modifyVars({
-        "@grid-width": "#{@width * 40}px",
-        "@grid-height": "#{@height * 40}px"
-        })
+      $("#grid").css({
+        "width": "#{@width * 50}px",
+        "height": "#{@height * 50}px"
+      })
+      $("header").css({
+        "width": "#{@width * 50 + 300}px"
+      })
+
       $("#grid").html("")
       for i in [0...@width]
         for j in [0...@height]
-           $("#grid").append "<div class='cell' id='r#{i}c#{j}'</div>"
+           $("#grid").append "<div class='cell' id='r#{i}c#{j}'></div>"
 
     go: ->
       @correctCount = 0
       @passive = 1000 + 100 * @cellCount
-      @active = 3000 + 1000 * @cellCount
-      
+      @active = 500 * @width + 500 * @cellCount + 45
+      @remaining = @active / 1000
+
+      $("time#remaining").html(@remaining.toFixed(1) + " s")   
+      $("#timer").css("color", "#000")
       $(".cell").removeClass("chosen")
+
       do @disableMouse
       do @pickCells
       @lightCells true
 
-      that = @
       current = @trial
-      setTimeout ( -> 
-        that.lightCells false
-        do that.enableMouse
-        setTimeout ( ->
-          that.respond false, current
-          ), that.active
+      setTimeout ( => 
+        @lightCells false
+        do @enableMouse
+
+        @timer = setInterval ( =>
+          @remaining -= 0.1
+          $("time#remaining").html(@remaining.toFixed(1) + " s")
+          $("#timer").css("color", "#c00") if @remaining < 1.0  
+          ), 100
+
+        setTimeout ( =>
+          @respond false, current
+          ), @active
         ), @passive
 
     disableMouse: -> $(".cell").off "click"
     enableMouse: -> 
-      that = @
+      t = @
       $(".cell").on "click", (event) -> 
-        if $(this).attr("id") in that.cells
-          $(this).addClass("chosen")
-          that.correctCount += 1
-          if that.correctCount is that.cellCount
-            that.respond true
-        else
-          that.respond false
+        unless $(this).hasClass("chosen")
+          if $(this).attr("id") in t.cells
+            $(this).addClass("chosen")
+            t.correctCount += 1
+            if t.correctCount is t.cellCount
+              t.respond true
+          else
+            t.respond false
 
     pickCells: ->
       @cells = []
@@ -82,30 +86,35 @@ window.Game = do ->
     respond: (succeeded, trial) ->
       if arguments.length is 1 or trial is @trial
         @flash succeeded
+        clearInterval(@timer)
         if succeeded 
-          $("#max").html(@cellCount)
-          $("#score").html(@cellCount + parseInt $("#score").html())
-          if @cellCount >= @width
-            @cellCount = @height
-            [@height, @width] = [@width, nextFib @width]
-            do @populateGrid
+          $("#max").html(@cellCount) if @cellCount > parseInt($("#max").html())
+          bonus = 10 * @height * (@cellCount + (Math.ceil(@remaining * 10)/10))
+          $("#score").html(bonus + parseInt $("#score").html())
+          if @cellCount > (@width * @height / 4)
+            @cellCount = @width
+            @height += 1
+            @width = Math.floor(@height * 1.6)
+            $("#success strong").html("Level Up!")
+            setTimeout ( => do @populateGrid ), 1000
           else
             @cellCount += 1
         else
           @lightCells true
-        
-        that = @
+
         @trial += 1
-        setTimeout ( -> do that.go), 400
+        setTimeout ( => do @go), 1000
 
     flash: (succeeded) ->
       if succeeded
         message = "Nice!"
+        $("#timer").css("color", "#090")
       else
         message = "Try Again!"
+        $("#timer").css("color", "#c00")
 
-      $("h2").html("#{message}")
-      setTimeout ( -> $("h2").html("") ), 400
+      $("#success strong").addClass("#{succeeded}").html("#{message}")
+      setTimeout ( -> $("#success strong").removeClass("#{succeeded}").html("") ), 1000
   {start: start}
 
 

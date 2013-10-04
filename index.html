@@ -7,36 +7,41 @@
 </head>
 <body>
   <h1>Memory Grid!</h1>
-  <header>
-    <strong>Max: <span id="max">0</span></strong>
-    <strong>Score: <span id="score">0</span></strong>
-    <form action="">
-      <h3>Initial grid size:</h3>
-      <!-- use golden ratio for arbitrary aesthetic reasons -->
-      <input type="submit" value="Start Playing!">
-
-      <label>
-        <input type="radio" name="size" value="13">
-        Huge
-      </label>
-      <label>
-        <input type="radio" name="size" value="8">
-        Large
-      </label>
-      <label>
-        <input type="radio" name="size" value="5" checked>
-        Medium
-      </label>
-      <label>
-        <input type="radio" name="size" value="3">
-        Small
-      </label>
-    </form>
-
-    <time id="remaining"></time>
+  <header class="group">
+    <button class="start">Start Playing!</button>
+    <div class="hidden" id="stats">
+      <strong>Max: <span id="max">0</span></strong>
+      <strong>Score: <span id="score">0</span></strong>
+    </div>
+    <div class="hidden" id="timer">
+      <strong><time id="remaining"></time></strong>
+    </div>
+    <div class="hidden" id="success">
+      <strong></strong>
+    </div>
   </header>
-  <div id="grid"></div>
-  <h2></h2>
+
+  <div class="start" id="grid">
+    <div class="cell" id="r0c0"></div>
+    <div class="cell" id="r0c1"></div>
+    <div class="cell" id="r0c2"></div>
+    <div class="cell" id="r1c0"></div>
+    <div class="cell" id="r1c1"></div>
+    <div class="cell" id="r1c2"></div>
+    <div class="cell" id="r2c0"></div>
+    <div class="cell" id="r2c1"></div>
+    <div class="cell" id="r2c2"></div>
+    <div class="cell" id="r3c0"></div>
+    <div class="cell" id="r3c1"></div>
+    <div class="cell" id="r3c2"></div>
+    <div class="cell" id="r4c0"></div>
+    <div class="cell" id="r4c1"></div>
+    <div class="cell" id="r4c2"></div>
+  </div>
+
+  <footer>
+    <a id="source"href="http://www.github.com/ethancd/memory_grid">Source Code!</a>
+  </footer>
 
   <script src="libs/less-1.4.1.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -45,11 +50,12 @@
 
   <script>
     $(function(){
-      $("form").on("submit", function(event){
-        event.preventDefault();
-        var size = $('input[name=size]:checked').val();
-        Game.start(size);
-        $("form").hide();
+      $(".start").on("click", function(event){
+        Program.start();
+        $(".start").off("click");
+        $("button.start").attr("disabled", true);
+        $("button.start").css("opacity", 0);
+        $(".hidden").removeClass("hidden");
       })
     })
   </script>
