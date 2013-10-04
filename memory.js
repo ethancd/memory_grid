@@ -13,7 +13,7 @@
         this.width = width;
         this.height = height;
         this.trial = 1;
-        this.cellCount = (this.height - 2) || 1;
+        this.cellCount = 1;
         this.populateGrid();
         this.go();
       }
@@ -59,6 +59,9 @@
         return setTimeout((function() {
           _this.lightCells(false);
           _this.enableMouse();
+          if (_this.cellCount === 1) {
+            $("#success strong").addClass("instructions").html("Click that cell!");
+          }
           _this.timer = setInterval((function() {
             _this.remaining -= 1;
             console.log(_this.remaining);
@@ -131,6 +134,7 @@
       Game.prototype.respond = function(succeeded, trial) {
         var bonus,
           _this = this;
+        $("#success strong").removeClass("instructions");
         if (arguments.length === 1 || trial === this.trial) {
           if (arguments.length === 2) {
             $("time#remaining").html("0.0 s");

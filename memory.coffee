@@ -5,7 +5,7 @@ window.Program = do ->
   class Game
     constructor: (@width, @height) ->
       @trial = 1
-      @cellCount = (@height - 2) or 1
+      @cellCount = 1
       do @populateGrid
       do @go
 
@@ -41,6 +41,8 @@ window.Program = do ->
       setTimeout ( => 
         @lightCells false
         do @enableMouse
+        if @cellCount is 1
+          $("#success strong").addClass("instructions").html("Click that cell!")
 
         @timer = setInterval ( =>
           @remaining -= 1
@@ -85,6 +87,7 @@ window.Program = do ->
       $("##{cell}").toggleClass("chosen", bool) for cell in @cells
 
     respond: (succeeded, trial) ->
+      $("#success strong").removeClass("instructions")
       if arguments.length is 1 or trial is @trial
         $("time#remaining").html("0.0 s") if arguments.length is 2
         @flash succeeded
