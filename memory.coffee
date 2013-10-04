@@ -15,8 +15,8 @@ window.Game = do ->
 
   class Game
     constructor: (@width, @height) ->
+      @trial = 1
       @cellCount = (@height - 2) or 1
-      @delay = 400 * @cellCount
       do @populateGrid
       do @go
 
@@ -32,28 +32,31 @@ window.Game = do ->
 
     go: ->
       @correctCount = 0
+      @passive = 1000 + 100 * @cellCount
+      @active = 3000 + 1000 * @cellCount
+      
+      $(".cell").removeClass("chosen")
       do @disableMouse
       do @pickCells
       @lightCells true
 
       that = @
+      current = @trial
       setTimeout ( -> 
         that.lightCells false
         do that.enableMouse
-        # setTimeout ( ->
-        #   that.respond false
-        #   ), (1000 * that.height)
-        ), @delay
+        setTimeout ( ->
+          that.respond false, current
+          ), that.active
+        ), @passive
 
     disableMouse: -> $(".cell").off "click"
     enableMouse: -> 
       that = @
       $(".cell").on "click", (event) -> 
-        $(this).addClass("chosen")
-
         if $(this).attr("id") in that.cells
+          $(this).addClass("chosen")
           that.correctCount += 1
-          console.log that.correctCount is that.cellCount
           if that.correctCount is that.cellCount
             that.respond true
         else
@@ -76,21 +79,44 @@ window.Game = do ->
     lightCells: (bool) -> 
       $("##{cell}").toggleClass("chosen", bool) for cell in @cells
 
-    respond: (succeeded) ->
-      $(".cell").removeClass("chosen")
-      if succeeded 
-        #@flash "good"
-        $("#max").html(@cellCount)
-        $("#score").html(@cellCount + parseInt $("#score").html())
-        if @cellCount >= @width
-          @cellCount = @height
-          [@height, @width] = [@width, nextFib @width]
-          do @populateGrid
+    respond: (succeeded, trial) ->
+      if arguments.length is 1 or trial is @trial
+        @flash succeeded
+        if succeeded 
+          $("#max").html(@cellCount)
+          $("#score").html(@cellCount + parseInt $("#score").html())
+          if @cellCount >= @width
+            @cellCount = @height
+            [@height, @width] = [@width, nextFib @width]
+            do @populateGrid
+          else
+            @cellCount += 1
         else
-          @cellCount += 1
-      #else
-        #@flash "bad"
-      
-      do @go
+          @lightCells true
+        
+        that = @
+        @trial += 1
+        setTimeout ( -> do that.go), 400
 
+    flash: (succeeded) ->
+      if succeeded
+        message = "Nice!"
+      else
+        message = "Try Again!"
+
+      $("h2").html("#{message}")
+      setTimeout ( -> $("h2").html("") ), 400
   {start: start}
+
+
+
+
+
+
+
+
+
+
+
+
+

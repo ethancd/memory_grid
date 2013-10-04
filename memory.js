@@ -23,8 +23,8 @@
       function Game(width, height) {
         this.width = width;
         this.height = height;
+        this.trial = 1;
         this.cellCount = (this.height - 2) || 1;
-        this.delay = 400 * this.cellCount;
         this.populateGrid();
         this.go();
       }
@@ -51,16 +51,23 @@
       };
 
       Game.prototype.go = function() {
-        var that;
+        var current, that;
         this.correctCount = 0;
+        this.passive = 1000 + 100 * this.cellCount;
+        this.active = 3000 + 1000 * this.cellCount;
+        $(".cell").removeClass("chosen");
         this.disableMouse();
         this.pickCells();
         this.lightCells(true);
         that = this;
+        current = this.trial;
         return setTimeout((function() {
           that.lightCells(false);
-          return that.enableMouse();
-        }), this.delay);
+          that.enableMouse();
+          return setTimeout((function() {
+            return that.respond(false, current);
+          }), that.active);
+        }), this.passive);
       };
 
       Game.prototype.disableMouse = function() {
@@ -72,10 +79,9 @@
         that = this;
         return $(".cell").on("click", function(event) {
           var _ref;
-          $(this).addClass("chosen");
           if (_ref = $(this).attr("id"), __indexOf.call(that.cells, _ref) >= 0) {
+            $(this).addClass("chosen");
             that.correctCount += 1;
-            console.log(that.correctCount === that.cellCount);
             if (that.correctCount === that.cellCount) {
               return that.respond(true);
             }
@@ -117,21 +123,42 @@
         return _results;
       };
 
-      Game.prototype.respond = function(succeeded) {
-        var _ref;
-        $(".cell").removeClass("chosen");
-        if (succeeded) {
-          $("#max").html(this.cellCount);
-          $("#score").html(this.cellCount + parseInt($("#score").html()));
-          if (this.cellCount >= this.width) {
-            this.cellCount = this.height;
-            _ref = [this.width, nextFib(this.width)], this.height = _ref[0], this.width = _ref[1];
-            this.populateGrid();
+      Game.prototype.respond = function(succeeded, trial) {
+        var that, _ref;
+        if (arguments.length === 1 || trial === this.trial) {
+          this.flash(succeeded);
+          if (succeeded) {
+            $("#max").html(this.cellCount);
+            $("#score").html(this.cellCount + parseInt($("#score").html()));
+            if (this.cellCount >= this.width) {
+              this.cellCount = this.height;
+              _ref = [this.width, nextFib(this.width)], this.height = _ref[0], this.width = _ref[1];
+              this.populateGrid();
+            } else {
+              this.cellCount += 1;
+            }
           } else {
-            this.cellCount += 1;
+            this.lightCells(true);
           }
+          that = this;
+          this.trial += 1;
+          return setTimeout((function() {
+            return that.go();
+          }), 400);
         }
-        return this.go();
+      };
+
+      Game.prototype.flash = function(succeeded) {
+        var message;
+        if (succeeded) {
+          message = "Nice!";
+        } else {
+          message = "Try Again!";
+        }
+        $("h2").html("" + message);
+        return setTimeout((function() {
+          return $("h2").html("");
+        }), 400);
       };
 
       return Game;
