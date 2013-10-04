@@ -23,3 +23,12 @@ Game play will continue until the user cannot complete a level, or has reached t
 * jQuery
 * LESS.js (CSS3)
 * HTML5
+
+### To-Do List:
+
+* Add pause button
+* Add sound effects
+* Set background image to Salvador Dali's "Persistence of Memory"
+* Finish fleshing out "3D-mode" idea
+* Add award-winning soundtrack
+* ~~Add "challenge mode" with strobe light~~ don't do this one
