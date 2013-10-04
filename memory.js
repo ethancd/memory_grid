@@ -63,13 +63,13 @@
             _this.remaining -= 1;
             console.log(_this.remaining);
             $("time#remaining").html((_this.remaining / 10).toFixed(1) + " s");
-            if (_this.remaining < 1) {
+            if (_this.remaining <= 10) {
               return $("#timer").css("color", "#c00");
             }
           }), 100);
           return setTimeout((function() {
             return _this.respond(false, current);
-          }), _this.active + 90);
+          }), _this.active + 50);
         }), this.passive);
       };
 
@@ -132,6 +132,9 @@
         var bonus,
           _this = this;
         if (arguments.length === 1 || trial === this.trial) {
+          if (arguments.length === 2) {
+            $("time#remaining").html("0.0 s");
+          }
           this.flash(succeeded);
           clearInterval(this.timer);
           if (succeeded) {

@@ -46,12 +46,12 @@ window.Program = do ->
           @remaining -= 1
           console.log @remaining
           $("time#remaining").html((@remaining/10).toFixed(1) + " s")
-          $("#timer").css("color", "#c00") if @remaining < 1  
+          $("#timer").css("color", "#c00") if @remaining <= 10  
           ), 100
 
         setTimeout ( =>
           @respond false, current
-          ), (@active + 90)
+          ), (@active + 50)
         ), @passive
 
     disableMouse: -> $(".cell").off "click"
@@ -86,6 +86,7 @@ window.Program = do ->
 
     respond: (succeeded, trial) ->
       if arguments.length is 1 or trial is @trial
+        $("time#remaining").html("0.0 s") if arguments.length is 2
         @flash succeeded
         clearInterval(@timer)
         if succeeded 
